@@ -1,4 +1,13 @@
-<?php include 'includes/templates/header.php' ?>
+<?php 
+    include 'includes/templates/header.php'; 
+    session_start();
+    if(isset($_GET['cerrar_sesion']) == true){
+        session_destroy();
+    }
+    echo "<pre>";
+    echo print_r($_SESSION);
+    echo "</pre>";
+?>
 <body class="login">
     <div class="contenedor-formulario">
         <h1>UpTask</h1>

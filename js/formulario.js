@@ -33,15 +33,34 @@ function validarRegistro(e){
         xhr.onload = function () {
             if(this.status == 200){
                 const respuesta = JSON.parse(xhr.responseText);
-                if(respuesta.respueta === 'correcto'){
+                console.log(respuesta);
+                if(respuesta.respuesta === 'correcto'){
                     //Si es un nuevo Usuario
                     if(respuesta.tipo === 'crear'){
                         Swal.fire({
                             icon: 'success',
                             title: 'Usuario Creado',
-                            text: 'Los campos son obligatorios',
+                            text: 'El usuario se creo correctamente',
                         })
+                    }else if(respuesta.tipo === 'login'){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login Correcto',
+                            text: 'Presiona ok para ir al dashbord',
+                        })
+                        .then(resultado => {
+                            if(resultado.value){
+                                window.location.href = 'index.php';
+                            }
+                        });
                     }
+                }else{
+                    //Hubo un error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Ocurrio un error'
+                    });
                 }
             }
         }

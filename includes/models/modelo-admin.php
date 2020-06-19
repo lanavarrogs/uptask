@@ -22,6 +22,10 @@
                     'id_insertado' => $stmt->insert_id,
                     'tipo' => $accion
                 );
+            }else{
+                $respuesta = array(
+                    'respuesta' => 'error'
+                );
             }
             $stmt->close();
             $conexion->close();
@@ -33,8 +37,50 @@
         echo json_encode($respuesta);
     }
 
-    if($accion === 'login'){
+    if($accion == 'login'){
         //Codigo para loguearse 
+        include '../functions/conexion.php';
+        try {
+            //Seleccionar el usuario de la base de datos
+            $stmt = $conexion->prepare("SELECT id,usuario,password FROM usuarios WHERE usuario = ?");
+            $stmt->bind_param('s',$usuario);
+            $stmt->execute();
+            //Loguear al usuario
+            $stmt->bind_result($id_usuario,$nombre_usuario,$password_usuario);
+            $stmt->fetch();
+            if(isset($nombre_usuario)){
+                //El usuario existe,verificar password
+                if(password_verify($password,$password_usuario)){
+                    //Iniciar la sesion
+                    session_start();
+                    $_SESSION['nombre'] = $nombre_usuario;
+                    $_SESSION['id'] = $id_usuario;
+                    $_SESSION['login'] = true;
+                    //login correcto;
+                    $respuesta = array(
+                        'respuesta' => 'correcto',
+                        'tipo' => $accion,
+                        'nombre' => $nombre_usuario,
+                    );
+                }else{
+                    //Login incorrecto,enviar error
+                    $respuesta = array(
+                        'respuesta' => 'Password Incorrecto'     
+                    ); 
+                }
+            }else{
+                $respuesta = array(
+                    'error' => 'Usuario no existe'
+                );
+            }
+            $stmt->close();
+            $conexion->close();
+            
+        } catch (\Exception $e) {
+            $respuesta = array(
+                'error' => $e->getMessage()
+            );
+        }
+        echo json_encode($respuesta);
     }
-
 ?>
