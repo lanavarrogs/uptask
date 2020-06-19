@@ -4,7 +4,7 @@
     define('DB_PASSWORD','');
     define('DB_NAME','uptask'); 
 
-    $conexion = mysqli('DB_HOST','DB_USER','DB_PASSWORD','DB_NAME');
+    $conexion = new mysqli(DB_HOST,DB_USER,DB_PASSWORD,DB_NAME);
 
     if($conexion->connect_error){
         echo $conexion->connect_error;

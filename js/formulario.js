@@ -10,7 +10,7 @@ function validarRegistro(e){
     e.preventDefault();
     let usuario = document.querySelector('#usuario').value,
         password = document.querySelector('#password').value,
-        tipo = document.querySelector('#tipo');
+        tipo = document.querySelector('#tipo').value;
     
     if(usuario == "" || password == ""){
         Swal.fire({
@@ -32,7 +32,17 @@ function validarRegistro(e){
         //Retorno de datos
         xhr.onload = function () {
             if(this.status == 200){
-                console.log(xhr.responseText);
+                const respuesta = JSON.parse(xhr.responseText);
+                if(respuesta.respueta === 'correcto'){
+                    //Si es un nuevo Usuario
+                    if(respuesta.tipo === 'crear'){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Usuario Creado',
+                            text: 'Los campos son obligatorios',
+                        })
+                    }
+                }
             }
         }
         //Enviar la peticion
