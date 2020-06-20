@@ -61,6 +61,7 @@
                         'respuesta' => 'correcto',
                         'tipo' => $accion,
                         'nombre' => $nombre_usuario,
+                        'id' => $stmt->insert_id
                     );
                 }else{
                     //Login incorrecto,enviar error

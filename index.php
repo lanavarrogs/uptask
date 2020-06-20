@@ -2,35 +2,28 @@
     include 'includes/functions/sesiones.php';
     include 'includes/templates/header.php';
     include 'includes/templates/barra.php';
+
+
+    //Obtener el id de la url
+    if(isset($_GET['id_proyecto'])){
+        $id_proyecto = $_GET['id_proyecto'];
+    }
+
 ?>
 <body>
 
 <div class="contenedor">
-    <aside class="contenedor-proyectos">
-        <div class="panel crear-proyecto">
-            <a href="#" class="boton">Nuevo Proyecto <i class="fas fa-plus"></i> </a>
-        </div>
     
-        <div class="panel lista-proyectos">
-            <h2>Proyectos</h2>
-            <ul id="proyectos">
-                <li>
-                    <a href="#">
-                        Diseño Página Web
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        Nuevo Sitio en wordPress
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </aside>
-
+    <?php include 'includes/templates/sidebar.php'; ?>
     <main class="contenido-principal">
         <h1>
-            <span>Diseño de Página Web</span>
+            <?php 
+                echo $id_proyecto;
+                $proyecto = obtenerNombre($id_proyecto);
+                foreach ($proyecto as $nombre) { ?>
+                    <span><?php echo $nombre['nombre']; ?></span>
+            <?php } ?>
+            
         </h1>
 
         <form action="#" class="agregar-tarea">
@@ -39,7 +32,7 @@
                 <input type="text" placeholder="Nombre Tarea" class="nombre-tarea"> 
             </div>
             <div class="campo enviar">
-                <input type="hidden" id="id_proyecto" value="id_proyecto">
+                <input type="hidden" id="id_proyecto" value="<?php $id_proyecto?>">
                 <input type="submit" class="boton nueva-tarea" value="Agregar">
             </div>
         </form>
@@ -63,9 +56,4 @@
     </main>
 </div><!--.contenedor-->
 
-
-<script src="js/sweetalert2.all.min.js"></script>
-
-
-</body>
-</html>
+<?php  include 'includes/templates/footer.php'?>
