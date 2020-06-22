@@ -29,3 +29,14 @@
             return false;
         }
     }
+
+    //obtener las clases del Proyecto
+    function obtenerTareas($id = null){
+        include 'conexion.php';
+        try {
+            return  $conexion->query("SELECT id_tarea,nombre,estatus FROM tareas WHERE id_proyecto = ${id}");
+        } catch (\Exception $e) {
+            echo "Error!" . $e->getMessage();
+            return false;
+        }
+    }

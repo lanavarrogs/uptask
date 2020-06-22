@@ -1,6 +1,8 @@
 //Botones
 const btnCrearProyecto = document.querySelector('.crear-proyecto a'),
-        btnNuevaTarea = document.querySelector('.nueva-tarea');
+        btnNuevaTarea = document.querySelector('.nueva-tarea'),
+        btnAcciones = document.querySelector('.listado-pendientes');
+
 //lista proyectos
 var listaProyectos = document.querySelector('ul#proyectos');
 
@@ -11,6 +13,8 @@ function EventListeners(){
     btnCrearProyecto.addEventListener('click',nuevoProyecto);
     //Boton para crear una nueva tarea
     btnNuevaTarea.addEventListener('click',agregarTarea);
+    //Botones para los listados de las tareas
+    btnAcciones.addEventListener('click',accionesTareas);
 }
 
 function nuevoProyecto(e){
@@ -59,7 +63,7 @@ function GuardarProyectoDB(nombreProyecto){
                 if(tipo === 'crear'){
                      //Inyectar el Html
                     let nuevoProyecto  = document.createElement('li');
-                    nuevoProyecto.innerHTML = `<a href="index.php?id_respuesta=${id}">${nombre}</a>`
+                    nuevoProyecto.innerHTML = `<a href="index.php?id_proyecto=${id}" id ="proyecto:${id}">${nombre}</a>`
                     listaProyectos.appendChild(nuevoProyecto);
                     Swal.fire({
                         icon: 'success',
@@ -118,11 +122,145 @@ function agregarTarea(e){
         xhr.onload = function(){
             if(this.status === 200){
                 //Todo correcto
+                //Asignar valores
                 let respuesta = JSON.parse(xhr.responseText);
                 console.log(respuesta);
+                if(respuesta.respuesta === 'correcto'){
+                    //Se agrego correctamente
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tarea creada!',
+                        text: 'La tarea se agrego correctamente'
+                    });
+                    let parrafoLista = document.querySelectorAll('.lista-vacia');
+                    if(parrafoLista.length>0){
+                        document.querySelector('.lista-vacia').remove();
+                    }
+                    //Construir el template
+                    let nuevaTarea = document.createElement('li');
+                    //Agreagar el id
+                    nuevaTarea.id = `tarea: ${respuesta.id_insertado}`;
+                    //Agregar la clase tarea
+                    nuevaTarea.classList.add('tarea');
+                    //Construir en el HTML
+                    nuevaTarea.innerHTML = `
+                        <p>${respuesta.nombre_tarea}</p>
+                        <div class= "acciones">
+                            <i class="far fa-check-circle"></i>
+                            <i class="fas fa-trash"></i>
+                        </div>
+                    `;
+                    //Agregarlo al DOM
+                    let listado = document.querySelector('.listado-pendientes ul');
+                    listado.appendChild(nuevaTarea);
+                    //Limpiar el formulario
+                    document.querySelector('.agregar-tarea').reset();
+                }else{
+                    //Hubo un error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Ocurrio un error'
+                    });
+                }
             }
         }
         //Enviar los datos
         xhr.send(datos);
     }
+}
+
+//Cambia el estado de las tareas o las elimina
+function accionesTareas(e){
+    e.preventDefault();
+    let tareaEliminar = e.target.parentElement.parentElement
+    console.log(tareaEliminar);
+
+    if(e.target.classList.contains('fa-check-circle')){
+        if(e.target.classList.contains('completo')){
+            e.target.classList.remove('completo');
+            cambiarEstadoTarea(e.target,0);
+        }else{
+            e.target.classList.add('completo');
+            cambiarEstadoTarea(e.target,1);
+        }
+    }else if(e.target.classList.contains('fa-trash')){
+        Swal.fire({
+            title: 'Estas seguro?',
+            text: "Esta accion no se puede deshacer",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Si,borrar'
+        }).then((result) => {
+            if (result.value) {
+                //Borrar de la BD
+                elminarTarea(tareaEliminar);
+                //Borrar del HTML
+                tareaEliminar.remove();
+            }
+        });
+    }
+}
+
+//Completa o descompleta una tarea
+function cambiarEstadoTarea(tarea,estado){
+    let id_tarea = tarea.parentElement.parentElement.id.replace('tarea:',"");
+    //Crear llamado AJAX
+    const xhr = new XMLHttpRequest();
+    //Informacion
+    var datos = new FormData();
+    datos.append('id',id_tarea);
+    datos.append('accion','actualizar');
+    datos.append('estado',estado);
+    //Abrir la conexion
+    xhr.open('POST','includes/models/modelo-tarea.php',true);
+    //On load
+    xhr.onload = function(){
+        if(this.status === 200){
+            let respuesta = JSON.parse(xhr.responseText);
+        }
+    }
+    //Enviar los datos
+    xhr.send(datos);
+}
+
+//Elimina las tareas de la base de datos
+function elminarTarea(tarea){
+    let id_tarea = tarea.id.replace('tarea:',"");
+    //Crear llamado AJAX
+    const xhr = new XMLHttpRequest();
+    //Informacion
+    var datos = new FormData();
+    datos.append('id',id_tarea);
+    datos.append('accion','eliminar');
+    //Abrir la conexion
+    xhr.open('POST','includes/models/modelo-tarea.php',true);
+    //On load
+    xhr.onload = function(){
+        if(this.status === 200){
+            let {respuesta} = JSON.parse(xhr.responseText);
+            let listaTareasRestantes = document.querySelectorAll('.li-tarea');
+            if(listaTareasRestantes.length === 0){
+                document.querySelector('.listado-pendientes ul').innerHTML = "<p class='lista-vacia'>No hay tareas en este proyecto</p>";
+            }
+            if(respuesta === 'correcto'){
+                Swal.fire(
+                    'Eliminado!',
+                    'La tarea ha sido eliminada con exito',
+                    'success'
+                );
+            }else{
+                Swal.fire(
+                    'Error!',
+                    'Ha ocurrido un error',
+                    'error'
+                );
+            }
+        }
+    }
+    //Enviar los datos
+    xhr.send(datos);
 }
