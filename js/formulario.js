@@ -11,7 +11,7 @@ function validarRegistro(e){
     let usuario = document.querySelector('#usuario').value,
         password = document.querySelector('#password').value,
         tipo = document.querySelector('#tipo').value;
-    
+
     if(usuario == "" || password == ""){
         Swal.fire({
             icon: 'error',

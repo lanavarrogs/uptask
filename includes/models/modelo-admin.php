@@ -1,8 +1,8 @@
-<?php  
+<?php
     $accion = $_POST['accion'];
     $usuario = $_POST['usuario'];
     $password = $_POST['password'];
-    
+
     if($accion == 'crear'){
         //Codigo para crear cuentas
         //Hashear el password
@@ -38,7 +38,7 @@
     }
 
     if($accion == 'login'){
-        //Codigo para loguearse 
+        //Codigo para loguearse
         include '../functions/conexion.php';
         try {
             //Seleccionar el usuario de la base de datos
@@ -66,8 +66,8 @@
                 }else{
                     //Login incorrecto,enviar error
                     $respuesta = array(
-                        'respuesta' => 'Password Incorrecto'     
-                    ); 
+                        'respuesta' => 'Password Incorrecto'
+                    );
                 }
             }else{
                 $respuesta = array(
@@ -76,7 +76,7 @@
             }
             $stmt->close();
             $conexion->close();
-            
+
         } catch (\Exception $e) {
             $respuesta = array(
                 'error' => $e->getMessage()
